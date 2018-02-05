@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL
 {
-    [TLObject(-1369215196)]
+	[TLObject(-1369215196)]
     public class TLDisabledFeature : TLObject
     {
         public override int Constructor
@@ -18,27 +18,27 @@ namespace TeleSharp.TL
             }
         }
 
-        public string Feature { get; set; }
-        public string Description { get; set; }
+             public string Feature {get;set;}
+     public string Description {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
             Feature = StringUtil.Deserialize(br);
-            Description = StringUtil.Deserialize(br);
+Description = StringUtil.Deserialize(br);
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
-            StringUtil.Serialize(Feature, bw);
-            StringUtil.Serialize(Description, bw);
+			bw.Write(Constructor);
+            StringUtil.Serialize(Feature,bw);
+StringUtil.Serialize(Description,bw);
 
         }
     }

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeleSharp.TL;
-namespace TeleSharp.TL
+namespace TeleSharp.TL.Messages
 {
-    public abstract class TLAbsChannelParticipantRole : TLObject
+    public abstract class TLAbsSentMessage : TLObject
     {
     }
 }

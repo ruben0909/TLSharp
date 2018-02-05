@@ -7,44 +7,47 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL.Upload
 {
-    [TLObject(352864346)]
+	[TLObject(-363659686)]
     public class TLFileCdnRedirect : TLAbsFile
     {
         public override int Constructor
         {
             get
             {
-                return 352864346;
+                return -363659686;
             }
         }
 
-        public int DcId { get; set; }
-        public byte[] FileToken { get; set; }
-        public byte[] EncryptionKey { get; set; }
-        public byte[] EncryptionIv { get; set; }
+             public int DcId {get;set;}
+     public byte[] FileToken {get;set;}
+     public byte[] EncryptionKey {get;set;}
+     public byte[] EncryptionIv {get;set;}
+     public TLVector<TLCdnFileHash> CdnFileHashes {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
             DcId = br.ReadInt32();
-            FileToken = BytesUtil.Deserialize(br);
-            EncryptionKey = BytesUtil.Deserialize(br);
-            EncryptionIv = BytesUtil.Deserialize(br);
+FileToken = BytesUtil.Deserialize(br);
+EncryptionKey = BytesUtil.Deserialize(br);
+EncryptionIv = BytesUtil.Deserialize(br);
+CdnFileHashes = (TLVector<TLCdnFileHash>)ObjectUtils.DeserializeVector<TLCdnFileHash>(br);
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
+			bw.Write(Constructor);
             bw.Write(DcId);
-            BytesUtil.Serialize(FileToken, bw);
-            BytesUtil.Serialize(EncryptionKey, bw);
-            BytesUtil.Serialize(EncryptionIv, bw);
+BytesUtil.Serialize(FileToken,bw);
+BytesUtil.Serialize(EncryptionKey,bw);
+BytesUtil.Serialize(EncryptionIv,bw);
+ObjectUtils.SerializeObject(CdnFileHashes,bw);
 
         }
     }

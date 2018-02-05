@@ -5,34 +5,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TeleSharp.TL;
-namespace TeleSharp.TL
+namespace TeleSharp.TL.Contacts
 {
-    [TLObject(-2113143156)]
-    public class TLChannelRoleEditor : TLAbsChannelParticipantRole
+	[TLObject(-1484775609)]
+    public class TLForeignLinkRequested : TLAbsForeignLink
     {
         public override int Constructor
         {
             get
             {
-                return -2113143156;
+                return -1484775609;
             }
         }
 
+             public bool HasPhone {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
+            HasPhone = BoolUtil.Deserialize(br);
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
+			bw.Write(Constructor);
+            BoolUtil.Serialize(HasPhone,bw);
 
         }
     }

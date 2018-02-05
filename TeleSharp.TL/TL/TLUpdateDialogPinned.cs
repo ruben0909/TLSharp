@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL
 {
-    [TLObject(-686710068)]
+	[TLObject(-686710068)]
     public class TLUpdateDialogPinned : TLAbsUpdate
     {
         public override int Constructor
@@ -18,33 +18,30 @@ namespace TeleSharp.TL
             }
         }
 
-        public int Flags { get; set; }
-        public bool Pinned { get; set; }
-        public TLAbsPeer Peer { get; set; }
+             public int Flags {get;set;}
+     public bool Pinned {get;set;}
+     public TLAbsPeer Peer {get;set;}
 
 
-        public void ComputeFlags()
-        {
-            Flags = 0;
-            Flags = Pinned ? (Flags | 1) : (Flags & ~1);
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
             Flags = br.ReadInt32();
-            Pinned = (Flags & 1) != 0;
-            Peer = (TLAbsPeer)ObjectUtils.DeserializeObject(br);
+Pinned = (Flags & 1) != 0;
+Peer = (TLAbsPeer)ObjectUtils.DeserializeObject(br);
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
-            ComputeFlags();
+			bw.Write(Constructor);
             bw.Write(Flags);
 
-            ObjectUtils.SerializeObject(Peer, bw);
+ObjectUtils.SerializeObject(Peer,bw);
 
         }
     }
