@@ -7,41 +7,38 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL
 {
-    [TLObject(-1861910545)]
-    public class TLChannelParticipantModerator : TLAbsChannelParticipant
+	[TLObject(-1690012891)]
+    public class TLInputPeerForeign : TLAbsInputPeer
     {
         public override int Constructor
         {
             get
             {
-                return -1861910545;
+                return -1690012891;
             }
         }
 
-        public int UserId { get; set; }
-        public int InviterId { get; set; }
-        public int Date { get; set; }
+             public int UserId {get;set;}
+     public long AccessHash {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
             UserId = br.ReadInt32();
-            InviterId = br.ReadInt32();
-            Date = br.ReadInt32();
+AccessHash = br.ReadInt64();
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
+			bw.Write(Constructor);
             bw.Write(UserId);
-            bw.Write(InviterId);
-            bw.Write(Date);
+bw.Write(AccessHash);
 
         }
     }

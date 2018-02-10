@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL
 {
-    [TLObject(541710092)]
+	[TLObject(541710092)]
     public class TLGeoPoint : TLAbsGeoPoint
     {
         public override int Constructor
@@ -18,27 +18,27 @@ namespace TeleSharp.TL
             }
         }
 
-        public double Long { get; set; }
-        public double Lat { get; set; }
+             public double Long {get;set;}
+     public double Lat {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
             Long = br.ReadDouble();
-            Lat = br.ReadDouble();
+Lat = br.ReadDouble();
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
+			bw.Write(Constructor);
             bw.Write(Long);
-            bw.Write(Lat);
+bw.Write(Lat);
 
         }
     }

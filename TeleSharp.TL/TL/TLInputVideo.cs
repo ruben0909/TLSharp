@@ -7,32 +7,38 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL
 {
-    [TLObject(-1776756363)]
-    public class TLChannelRoleModerator : TLAbsChannelParticipantRole
+	[TLObject(-296249774)]
+    public class TLInputVideo : TLAbsInputVideo
     {
         public override int Constructor
         {
             get
             {
-                return -1776756363;
+                return -296249774;
             }
         }
 
+             public long Id {get;set;}
+     public long AccessHash {get;set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
+            Id = br.ReadInt64();
+AccessHash = br.ReadInt64();
 
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
+			bw.Write(Constructor);
+            bw.Write(Id);
+bw.Write(AccessHash);
 
         }
     }

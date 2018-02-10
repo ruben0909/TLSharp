@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TeleSharp.TL;
 namespace TeleSharp.TL.Messages
 {
-    [TLObject(-497756594)]
+	[TLObject(-497756594)]
     public class TLRequestGetPinnedDialogs : TLMethod
     {
         public override int Constructor
@@ -18,28 +18,28 @@ namespace TeleSharp.TL.Messages
             }
         }
 
-        public Messages.TLPeerDialogs Response { get; set; }
+                public Messages.TLPeerDialogs Response{ get; set;}
 
 
-        public void ComputeFlags()
-        {
-
-        }
+		public void ComputeFlags()
+		{
+			
+		}
 
         public override void DeserializeBody(BinaryReader br)
         {
-
+            
         }
 
         public override void SerializeBody(BinaryWriter bw)
         {
-            bw.Write(Constructor);
-
+			bw.Write(Constructor);
+            
         }
-        public override void DeserializeResponse(BinaryReader br)
-        {
-            Response = (Messages.TLPeerDialogs)ObjectUtils.DeserializeObject(br);
+		public override void DeserializeResponse(BinaryReader br)
+		{
+			Response = (Messages.TLPeerDialogs)ObjectUtils.DeserializeObject(br);
 
-        }
+		}
     }
 }
