@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ionic.Zlib;
+using TeleSharp.TL;
 using TLSharp.Core.MTProto;
 using TLSharp.Core.MTProto.Crypto;
 using TLSharp.Core.Requests;
@@ -22,6 +25,7 @@ namespace TLSharp.Core.Network
         private Session _session;
 
         public List<ulong> needConfirmation = new List<ulong>();
+        public event EventHandler<UpdateEventArgs> InternalUpdate;
 
         public MtProtoSender(TcpTransport transport, Session session)
         {
@@ -213,29 +217,72 @@ namespace TLSharp.Core.Network
                 case 0x78d4dec1:
                 case 0x725b04c3:
                 case 0x74ae4240:
-                    return HandleUpdate(messageId, sequence, messageReader);
+                    return OnInternalUpdate(messageId, sequence, messageReader);
                 default:
                     //logger.debug("unknown message: {0}", code);
                     return false;
             }
         }
 
-        private bool HandleUpdate(ulong messageId, int sequence, BinaryReader messageReader)
+
+        private TLVector<TLAbsUpdate> ParseUpdate( BinaryReader messageReader)
         {
+            uint code = messageReader.ReadUInt32();
+            switch (code)
+            {
+                case 0xe317af7e:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdatesTooLong>(messageReader);
+                case 0x914fbf11:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdateShortMessage>(messageReader);
+                case 0x16812688:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdateShortChatMessage>(messageReader);
+                case 0x78d4dec1:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdateShort>(messageReader);
+                case 0x725b04c3:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdatesCombined>(messageReader);
+                case 0x74ae4240:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdates>(messageReader);
+                case 0x11f1331c:
+                    return DecodeUpdate<TeleSharp.TL.TLUpdateShortSentMessage>(messageReader);
+                default:
+                    return null;
+            }
+        }
+        private TLVector<TLAbsUpdate> DecodeUpdate<T>(BinaryReader messageReader) where T : TeleSharp.TL.TLAbsUpdates
+        {
+            var tempPos = messageReader.BaseStream.Position;
+            var ctor = messageReader.ReadInt32();
+            messageReader.BaseStream.Position = tempPos;
+            if (ctor != 481674261)
+            {
+                return new TLVector<TLAbsUpdate>()
+                {
+                    TeleSharp.TL.ObjectUtils.DeserializeObject(messageReader) as TLAbsUpdate
+                };
+            }
+            else
+            {
+                return TeleSharp.TL.ObjectUtils.DeserializeVector<TLAbsUpdate>(messageReader);
+            }
+        }
+
+        private bool OnInternalUpdate(ulong messageId, int sequence, BinaryReader messageReader)
+        {
+            EventHandler<UpdateEventArgs> handler = InternalUpdate;
+
+            // Event will be null if there are no subscribers
+            if (handler != null)
+            {
+                var update = ParseUpdate(messageReader);
+                UpdateEventArgs args = new UpdateEventArgs();
+                args.Updates = update;
+                args.MessageId = messageId;
+                args.Sequence = sequence;
+                handler(this, args);
+            }
+
             return false;
 
-            /*
-			try
-			{
-				UpdatesEvent(TL.Parse<Updates>(messageReader));
-				return true;
-			}
-			catch (Exception e)
-			{
-				logger.warning("update processing exception: {0}", e);
-				return false;
-			}
-			*/
         }
 
         private bool HandleGzipPacked(ulong messageId, int sequence, BinaryReader messageReader, TeleSharp.TL.TLMethod request)
@@ -513,8 +560,15 @@ namespace TLSharp.Core.Network
                         messageReader.BaseStream.Position = beginPosition + innerLength;
                     }
                 }
+                catch (FloodException ex)
+                {
+                    var wait = ex.TimeToWait.Add(TimeSpan.FromSeconds(1));
+                    Thread.Sleep(wait);
+                    messageReader.BaseStream.Position = beginPosition + innerLength;
+                }
                 catch (Exception e)
                 {
+
                     //	logger.error("failed to process message in contailer: {0}", e);
                     messageReader.BaseStream.Position = beginPosition + innerLength;
                 }
@@ -548,7 +602,7 @@ namespace TLSharp.Core.Network
         private const string REPORT_MESSAGE =
             " See: https://github.com/sochix/TLSharp#i-get-a-xxxmigrationexception-or-a-migrate_x-error";
 
-        protected DataCenterMigrationException(string msg, int dc) : base (msg + REPORT_MESSAGE)
+        protected DataCenterMigrationException(string msg, int dc) : base(msg + REPORT_MESSAGE)
         {
             DC = dc;
         }
@@ -557,7 +611,7 @@ namespace TLSharp.Core.Network
     internal class PhoneMigrationException : DataCenterMigrationException
     {
         internal PhoneMigrationException(int dc)
-            : base ($"Phone number registered to a different DC: {dc}.", dc)
+            : base($"Phone number registered to a different DC: {dc}.", dc)
         {
         }
     }
@@ -565,7 +619,7 @@ namespace TLSharp.Core.Network
     internal class FileMigrationException : DataCenterMigrationException
     {
         internal FileMigrationException(int dc)
-            : base ($"File located on a different DC: {dc}.", dc)
+            : base($"File located on a different DC: {dc}.", dc)
         {
         }
     }
@@ -577,7 +631,7 @@ namespace TLSharp.Core.Network
         {
         }
     }
-    
+
     internal class NetworkMigrationException : DataCenterMigrationException
     {
         internal NetworkMigrationException(int dc)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,8 +31,11 @@ namespace TLSharp.Core
         private List<TLDcOption> dcOptions;
         private TcpClientConnectionHandler _handler;
 
+        public event EventHandler<UpdateEventArgs> Update;
+
+
         public TelegramClient(int apiId, string apiHash,
-            ISessionStore store = null, string sessionUserId = "session", TcpClientConnectionHandler handler = null)
+            ISessionStore store = null, string sessionUserId = "session", TcpClientConnectionHandler handler = null, string serverAddress=null, int? port=null)
         {
             if (apiId == default(int))
                 throw new MissingApiConfigurationException("API_ID");
@@ -50,6 +54,14 @@ namespace TLSharp.Core
             _transport = new TcpTransport(_session.ServerAddress, _session.Port, _handler);
         }
 
+        protected virtual void HandleInternalUpdate(object sender, UpdateEventArgs e)
+        {
+            Update?.Invoke(this, e);
+
+
+        }
+        
+
         public async Task<bool> ConnectAsync(bool reconnect = false)
         {
             if (_session.AuthKey == null || reconnect)
@@ -60,6 +72,7 @@ namespace TLSharp.Core
             }
 
             _sender = new MtProtoSender(_transport, _session);
+            _sender.InternalUpdate += HandleInternalUpdate;
 
             //set-up layer
             var config = new TLRequestGetConfig();
