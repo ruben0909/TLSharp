@@ -36,6 +36,11 @@ namespace TeleSharp.TL
             lists.Add(item);
         }
 
+        public void AddRange(IEnumerable<T> items)
+        {
+            lists.AddRange(items);
+        }
+
         public void Clear()
         {
             lists.Clear();
@@ -111,7 +116,7 @@ namespace TeleSharp.TL
         public override void SerializeBody(BinaryWriter bw)
         {
             bw.Write(Constructor);
-            bw.Write(lists.Count());
+            bw.Write(lists.Count);
 
             foreach (var item in lists)
             {
